@@ -70,7 +70,8 @@ if  __name__ == '__main__':
     #     for i, param in model_ft.named_parameters():
     #         param.requires_grad = False
     #
-    # num_ftrs = model_ft.fc.in_features
+    num_ftrs = model_ft.fc.in_features
+    print(num_ftrs)
     # model_ft.fc = nn.Linear(num_ftrs, num_classes)
     # #
     # #
