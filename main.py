@@ -20,7 +20,7 @@ if  __name__ == '__main__':
         rearrange_data()
 
 
-    num_classes = len(list(os.walk('./train')))
+    num_classes = len(list(os.walk('./train'))) - 1
 
     print("number of classes is : {}".format(num_classes))
 
