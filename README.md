@@ -26,7 +26,7 @@ To use kaggle API follow [this guide](https://github.com/Kaggle/kaggle-api).
 
 ## To organize dataset
 
-run
+Run
 
 ```python
 python3 organize_data.py
