@@ -16,7 +16,7 @@ To download the full dataset which is 42GB run:
 kaggle datasets download -d nih-chest-xrays/data
 ```
 
-The full dataset has 112,120 X-ray images with labels from 30,805 unique patients.
+The full dataset has 112,120 X-ray images with labels from 30,805 unique patients. The sample dataset contains 5606 X-ray images and class labels.
 
 ## Dataset Limitations
 * The image labels are NLP extracted so there could be some erroneous labels but the NLP labeling accuracy is estimated to be >90%.
@@ -52,3 +52,6 @@ A train folder will be created with this tree structure
 └── Pneumothorax
 ```
 Each directory will have images of corresponding class name.
+
+## Citations
+* [Original source files and documents](https://nihcc.app.box.com/v/ChestXray-NIHCC/folder/36938765345)
