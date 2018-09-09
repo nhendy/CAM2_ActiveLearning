@@ -72,7 +72,8 @@ if  __name__ == '__main__':
     #
     num_ftrs = model_ft.fc.in_features
     print(num_ftrs)
-    # model_ft.fc = nn.Linear(num_ftrs, num_classes)
+    print(type(num_ftrs))
+    model_ft.fc = nn.Linear(num_ftrs, num_classes)
     # #
     # #
     # #
