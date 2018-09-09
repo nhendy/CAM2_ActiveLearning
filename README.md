@@ -16,6 +16,11 @@ To download the full dataset which is 42GB run:
 kaggle datasets download -d nih-chest-xrays/data
 ```
 
+The full dataset has 112,120 X-ray images with labels from 30,805 unique patients.
+
+## Dataset Limitations
+* The image labels are NLP extracted so there could be some erroneous labels but the NLP labeling accuracy is estimated to be >90%.
+
 ## Using Kaggle
 To use kaggle API follow [this guide](https://github.com/Kaggle/kaggle-api).
 
