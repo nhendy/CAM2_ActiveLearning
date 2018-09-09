@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
+import os
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -14,7 +15,14 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 if  __name__ == '__main__':
-    num_classes = rearrange_data()
+
+    if not (os.path.exists('./train')):
+        rearrange_data()
+
+
+    num_classes = len(list(os.walk('./train')))
+
+    print("number of classes is : {}".format(num_classes))
 
     data_transform = transforms.Compose([
         transforms.RandomResizedCrop(224),
@@ -55,30 +63,30 @@ if  __name__ == '__main__':
     dataloaders = {'train': train_loader, 'val': validation_loader}
 
     model_ft = models.resnet101(pretrained=True)
-    freeze_layers = True
-
-
-    if freeze_layers:
-        for i, param in model_ft.named_parameters():
-            param.requires_grad = False
-
-    num_ftrs = model_ft.fc.in_features
-    model_ft.fc = nn.Linear(num_ftrs, num_classes)
+    # freeze_layers = True
     #
     #
+    # if freeze_layers:
+    #     for i, param in model_ft.named_parameters():
+    #         param.requires_grad = False
     #
-    model_ft = model_ft.to(device)
-
-    criterion = nn.CrossEntropyLoss()
-
-    # Observe that all parameters are being optimized
-    optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
-
-    # Decay LR by a factor of 0.1 every 7 epochs
-    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
-
-    model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
-                           num_epochs=25)
+    # num_ftrs = model_ft.fc.in_features
+    # model_ft.fc = nn.Linear(num_ftrs, num_classes)
+    # #
+    # #
+    # #
+    # model_ft = model_ft.to(device)
+    #
+    # criterion = nn.CrossEntropyLoss()
+    #
+    # # Observe that all parameters are being optimized
+    # optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
+    #
+    # # Decay LR by a factor of 0.1 every 7 epochs
+    # exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
+    #
+    # model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
+    #                        num_epochs=25)
 
 
 
