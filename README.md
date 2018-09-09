@@ -4,7 +4,7 @@
 To install requirements run:
 
 ```
-pip3 install -r requirements
+pip3 install -r requirements.txt
 ```
 ## Dataset
 This porject uses this [dataset](https://www.kaggle.com/nih-chest-xrays/data/home) from kaggle. For using the sample dataset which is 2GB run: 
