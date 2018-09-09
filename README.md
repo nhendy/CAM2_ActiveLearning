@@ -1,4 +1,4 @@
-# CAM2_ActiveLearning
+# Active Learning
 
 ## Requirements
 To install requirements run:
