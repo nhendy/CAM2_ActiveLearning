@@ -94,6 +94,8 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device,  nu
 
     #TODO
     dataset_sizes = {x: len(dataloaders[x].dataset) for x in ['train', 'val']}
+    training_accuracy_list = []
+    val_accuracy_list = []
 
 
     for epoch in range(num_epochs):
@@ -138,6 +140,11 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device,  nu
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
+            if (phase == 'train'):
+                training_accuracy_list.append(epoch_acc)
+            elif (phase == 'val'):
+                val_accuracy_list.append(epoch_acc)
+
             print('{} Loss: {:.4f} Acc: {:.4f}'.format(
                 phase, epoch_loss, epoch_acc))
 
@@ -152,6 +159,16 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device,  nu
     print('Training complete in {:.0f}m {:.0f}s'.format(
         time_elapsed // 60, time_elapsed % 60))
     print('Best val Acc: {:4f}'.format(best_acc))
+
+    fig, ax = plt.subplots()
+    epoch_axis = np.arange(0, 25, 1)
+
+    ax.plot(epoch_axis, training_accuracy_list, '.-', epoch_axis, val_accuracy_list, '+--')
+
+    ax.set(xlabel='epoch', ylabel='accuracy')
+    ax.grid()
+
+    fig.savefig("test.png")
 
     # load best model weights
     model.load_state_dict(best_model_wts)
