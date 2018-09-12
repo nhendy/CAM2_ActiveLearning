@@ -63,16 +63,16 @@ if  __name__ == '__main__':
     dataloaders = {'train': train_loader, 'val': validation_loader}
 
     model_ft = models.resnet101(pretrained=True)
-    # freeze_layers = True
-    #
-    #
-    # if freeze_layers:
-    #     for i, param in model_ft.named_parameters():
-    #         param.requires_grad = False
+    freeze_layers = True
+
+
+    if freeze_layers:
+        for i, param in model_ft.named_parameters():
+            param.requires_grad = False
     #
     num_ftrs = model_ft.fc.in_features
     print(num_ftrs)
-    print(type(num_ftrs))
+    # print(type(num_ftrs))
     model_ft.fc = nn.Linear(num_ftrs, num_classes)
     # #
     # #
