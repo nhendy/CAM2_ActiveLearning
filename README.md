@@ -53,5 +53,18 @@ A train folder will be created with this tree structure
 ```
 Each directory will have images of corresponding class name.
 
+## To plot
+
+When you train, make sure you're redirecting the output to a ``logs`` file. Run ``parse.py``, it will generate a plot for you.
+
+### Implementation Details
+
+``parse.py`` compiles 2 regular expressions objects based on the following patterns:
+```
+r'train Loss: [-+]?[0-9]*\.?[0-9]+ Acc: ([-+]?[0-9]*\.?[0-9]+)'
+r'val Loss: [-+]?[0-9]*\.?[0-9]+ Acc: ([-+]?[0-9]*\.?[0-9]+)'
+```
+It then extracts the accuracy values and appends them to an array that is used to create the plot.
+
 ## Citations
 * [Original source files and documents](https://nihcc.app.box.com/v/ChestXray-NIHCC/folder/36938765345)
