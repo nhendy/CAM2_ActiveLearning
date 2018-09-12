@@ -90,6 +90,8 @@ if  __name__ == '__main__':
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, dataloaders, device,
                            num_epochs=25)
 
+    torch.save(model_ft.state_dict(), 'resnet101_5K_medical.pt')
+
 
 
 
