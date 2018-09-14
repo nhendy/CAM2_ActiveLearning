@@ -364,7 +364,14 @@ if __name__ == "__main__":
 
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, dataloaders, device,
                            num_epochs=25)
-
+    f = open('weight_by_layers.txt', 'w')
+    for k, v in model_ft.state_dict().iteritems():
+        #print("Layer {}".format(k))
+        #print(v)
+        f.write("Layer {}".format(k))  # python will convert \n to os.linesep
+        f.write(v)  # python will convert \n to os.linesep
+        f.write('\n')
+    f.close() 
     torch.save(model_ft.state_dict(), 'resnet101_5K_medical.pt')
     ######################################################################
     # Finetuning the convnet
