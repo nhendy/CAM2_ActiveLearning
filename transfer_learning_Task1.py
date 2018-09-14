@@ -42,6 +42,9 @@ from torch.optim import lr_scheduler
 import numpy as np
 import torchvision
 from torchvision import datasets, models, transforms
+from torch.utils.data import SubsetRandomSampler
+from organize_data import rearrange_data
+
 import matplotlib.pyplot as plt
 import time
 import os
@@ -87,11 +90,19 @@ def imshow(inp, title=None):
 # ``torch.optim.lr_scheduler``.
 
 
-def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
+def train_model(model, criterion, optimizer, scheduler, dataloaders, device, num_epochs=25):
     since = time.time()
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
+
+
+
+    #TODO
+    dataset_sizes = {x: len(dataloaders[x].dataset) for x in ['train', 'val']}
+    training_accuracy_list = []
+    val_accuracy_list = []
+
 
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
@@ -216,8 +227,9 @@ if __name__ == "__main__":
     # Just normalization for validation
 
     #For train folder with eval folder
-    with_eval_folder = 0
-    data_dir = 'hymenoptera_data'#'Medical_data'
+    '''
+    with_eval_folder = 1
+    data_dir = 'hymenoptera_data'#'Medical_data'##
 
     data_transforms = {
         'train': transforms.Compose([
@@ -240,6 +252,7 @@ if __name__ == "__main__":
         image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
                                                   data_transforms[x])
                           for x in ['train', 'val']}
+        print(type(image_datasets['train']))
         class_names = image_datasets['train'].classes
         dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
         print('with eval folder')
@@ -247,12 +260,14 @@ if __name__ == "__main__":
     #For train folder without eval folder
     else:
         full_dataset = datasets.ImageFolder(os.path.join(data_dir, 'train'), data_transforms['train'])
-        class_names = full_dataset.classes   
+        class_names = full_dataset.classes 
+        print(class_names)  
         train_size = int(0.8 * len(full_dataset))
         test_size = len(full_dataset) - train_size
         train_dataset, test_dataset = torch.utils.data.random_split(full_dataset, [train_size, test_size])
         dataset_sizes = {x: train_size if x=='train' else test_size for x in ['train', 'val'] }
         image_datasets = {x: train_dataset if x=='train' else test_dataset for x in ['train', 'val'] }
+        print(image_datasets)
         print('without eval folder')
 
 
@@ -269,14 +284,95 @@ if __name__ == "__main__":
     #out = torchvision.utils.make_grid(inputs)
 
     #imshow(out, title=[class_names[x] for x in classes])
+'''
 
+#Credit to nhendy
+
+
+    if not (os.path.exists('./Medical_data/train')):
+        rearrange_data()
+
+
+    num_classes = len(list(os.walk('./Medical_data/train'))) - 1
+
+    print("number of classes is : {}".format(num_classes))
+
+    data_transform = transforms.Compose([
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
+
+    medical_dataset = datasets.ImageFolder(root='./Medical_data/train',
+                                           transform=data_transform)
+
+    #  https://stackoverflow.com/questions/50544730/split-dataset-train-and-test-in-pytorch-using-custom-dataset
+    #
+
+    validation_split = 0.2
+    shuffle_dataset = True
+    batch_size = 16
+    dataset_size = len(medical_dataset)
+    random_seed = 42
+
+    indices = list(range(dataset_size))
+    split = int(np.floor(validation_split * dataset_size))
+    if shuffle_dataset:
+        np.random.seed(random_seed)
+        np.random.shuffle(indices)
+    train_indices, val_indices = indices[split:], indices[:split]
+
+    train_sampler = SubsetRandomSampler(train_indices)
+    valid_sampler = SubsetRandomSampler(val_indices)
+
+    train_loader = torch.utils.data.DataLoader(medical_dataset, batch_size=batch_size,
+                                               sampler=train_sampler)
+
+    validation_loader = torch.utils.data.DataLoader(medical_dataset, batch_size=batch_size,
+                                                    sampler=valid_sampler)
+
+    dataloaders = {'train': train_loader, 'val': validation_loader}
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+
+    model_ft = models.resnet101(pretrained=True)
+    freeze_layers = True
+
+
+    if freeze_layers:
+        for i, param in model_ft.named_parameters():
+            param.requires_grad = False
+    #
+    num_ftrs = model_ft.fc.in_features
+    print(num_ftrs)
+    # print(type(num_ftrs))
+    model_ft.fc = nn.Linear(num_ftrs, num_classes)
+    # #
+    # #
+    # #
+    model_ft = model_ft.to(device)
+
+    criterion = nn.CrossEntropyLoss()
+
+    # Observe that all parameters are being optimized
+    optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
+
+    # Decay LR by a factor of 0.1 every 7 epochs
+    exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=7, gamma=0.1)
+
+    model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, dataloaders, device,
+                           num_epochs=25)
+
+    torch.save(model_ft.state_dict(), 'resnet101_5K_medical.pt')
     ######################################################################
     # Finetuning the convnet
     # ----------------------
     #
     # Load a pretrained model and reset final fully connected layer.
     #
-
+'''
     model_ft = models.resnet18(pretrained=True)
     num_ftrs = model_ft.fc.in_features
     model_ft.fc = nn.Linear(num_ftrs, 2)
@@ -303,8 +399,8 @@ if __name__ == "__main__":
                            num_epochs=25)
 
     torch.save(model_ft.state_dict(), "new_trained.pt")
-    with open('new_trained_weight.txt', 'w') as file:
-        file.write(model_ft.fc2.weight.data)
+    #with open('new_trained_weight.txt', 'w') as file:
+    #    file.write(model_ft.fc2.weight.data)
 
     ######################################################################
     #
@@ -356,8 +452,8 @@ if __name__ == "__main__":
     model_conv = train_model(model_conv, criterion, optimizer_conv,
                              exp_lr_scheduler, num_epochs=25)
     torch.save(model_conv.state_dict(), "final_trained.pt")
-    with open('final_trained_weight.txt', 'w') as file:
-        file.write(model_conv.fc2.weight.data)
+    #with open('final_trained_weight.txt', 'w') as file:
+    #    file.write(model_conv.fc2.weight.data)
     ######################################################################
     #
 
@@ -365,3 +461,5 @@ if __name__ == "__main__":
 
     #plt.ioff()
     #plt.show()
+'''
+
