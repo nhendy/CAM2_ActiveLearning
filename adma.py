@@ -5,14 +5,14 @@ import cv2
 from PIL import Image
 import os
 from collections import defaultdict
+import torch
+import torchvision
 
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def get_mean():
     classes = os.listdir('./train')
-    # running_mean = 0
-    # min_error = None
     center_images = defaultdict(str)
 
 
@@ -52,7 +52,7 @@ def get_mean():
         try:
             Image.open(os.path.join('train', one_class, center_image)).save(os.path.join('centers', one_class, center_image))
         except:
-            print(center_image)
+            print('Error with class {} center image'.format(one_class))
     return (center_images)
 
 
