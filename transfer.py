@@ -98,10 +98,15 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device,  nu
     training_accuracy_list = []
     val_accuracy_list = []
 
-
+    num_images_trained_on = 0
     for epoch in range(num_epochs):
+        num_images_trained_on += dataloaders['train'].batch_size
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
+
+        if(num_images_trained_on % 100 == 0):
+            print('Images trained on {}'.format(num_images_trained_on))
+
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
