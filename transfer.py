@@ -96,7 +96,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, out
     dataset_sizes = {x: len(dataloaders[x].dataset) for x in ['train', 'val']}
 
     for epoch in range(num_epochs):
-        with open(output_path, 'w') as file:
+        with open(output_path, 'a') as file:
             file.write('Number of images trained on ' + str(len(dataloaders['train'].dataset)))
             file.write('Epoch {}/{}'.format(epoch, num_epochs - 1))
             file.write('-' * 10)
@@ -141,7 +141,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, out
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
-            with open(output_path, 'w') as file:
+            with open(output_path, 'a') as file:
                 file.write('{} Loss: {:.4f} Acc: {:.4f}'.format(
                     phase, epoch_loss, epoch_acc))
 
@@ -152,7 +152,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, out
 
 
     time_elapsed = time.time() - since
-    with open(output_path, 'w') as file:
+    with open(output_path, 'a') as file:
         file.write('Training complete in {:.0f}m {:.0f}s'.format(
             time_elapsed // 60, time_elapsed % 60))
         file.write('Best val Acc: {:4f}'.format(best_acc))
