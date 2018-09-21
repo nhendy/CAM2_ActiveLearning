@@ -87,25 +87,20 @@ import copy
 
 
 
-def train_model(model, criterion, optimizer, scheduler, dataloaders, device,  num_epochs=25):
+def train_model(model, criterion, optimizer, scheduler, dataloaders, device, output_path,  num_epochs=25):
     since = time.time()
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
-    #TODO
     dataset_sizes = {x: len(dataloaders[x].dataset) for x in ['train', 'val']}
-    training_accuracy_list = []
-    val_accuracy_list = []
 
-    num_images_trained_on = 0
     for epoch in range(num_epochs):
-        num_images_trained_on += dataloaders['train'].batch_size
-        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
-        print('-' * 10)
+        with open(output_path, 'w') as file:
+            file.write('Number of images trained on ' + len(dataloaders['train'].dataset))
+            file.write('Epoch {}/{}'.format(epoch, num_epochs - 1))
+            file.write('-' * 10)
 
-        if(num_images_trained_on % 100 == 0):
-            print('Images trained on {}'.format(num_images_trained_on))
 
 
         # Each epoch has a training and validation phase
@@ -146,35 +141,23 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device,  nu
             epoch_loss = running_loss / dataset_sizes[phase]
             epoch_acc = running_corrects.double() / dataset_sizes[phase]
 
-            if (phase == 'train'):
-                training_accuracy_list.append(epoch_acc)
-            elif (phase == 'val'):
-                val_accuracy_list.append(epoch_acc)
-
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(
-                phase, epoch_loss, epoch_acc))
+            with open(output_path, 'w') as file:
+                file.write('{} Loss: {:.4f} Acc: {:.4f}'.format(
+                    phase, epoch_loss, epoch_acc))
 
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
 
-        print()
 
     time_elapsed = time.time() - since
-    print('Training complete in {:.0f}m {:.0f}s'.format(
-        time_elapsed // 60, time_elapsed % 60))
-    print('Best val Acc: {:4f}'.format(best_acc))
+    with open(output_path, 'w') as file:
+        file.write('Training complete in {:.0f}m {:.0f}s'.format(
+            time_elapsed // 60, time_elapsed % 60))
+        file.write('Best val Acc: {:4f}'.format(best_acc))
 
-    fig, ax = plt.subplots()
-    epoch_axis = np.arange(0, 25, 1)
 
-    ax.plot(epoch_axis, training_accuracy_list, '.-', epoch_axis, val_accuracy_list, '+--')
-
-    ax.set(xlabel='epoch', ylabel='accuracy')
-    ax.grid()
-
-    fig.savefig("test.png")
 
     # load best model weights
     model.load_state_dict(best_model_wts)
