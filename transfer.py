@@ -97,7 +97,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, device, out
 
     for epoch in range(num_epochs):
         with open(output_path, 'w') as file:
-            file.write('Number of images trained on ' + len(dataloaders['train'].dataset))
+            file.write('Number of images trained on ' + str(len(dataloaders['train'].dataset)))
             file.write('Epoch {}/{}'.format(epoch, num_epochs - 1))
             file.write('-' * 10)
 

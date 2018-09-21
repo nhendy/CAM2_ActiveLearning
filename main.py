@@ -125,9 +125,9 @@ if  __name__ == '__main__':
     for i, loader in enumerate(all_dataloaders):
 
 
-        model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, loader, device, output_path + i,
+        model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler, loader, device, output_path + str(i),
                            num_epochs=25)
-        torch.save(model_ft.state_dict(), 'models/resnet101_5K_medical_loader_' + i + '.pt')
+        torch.save(model_ft.state_dict(), 'models/resnet101_5K_medical_loader_' + str(i) + '.pt')
 
         model_ft.load_state_dict(torch.load('models/resnet_initial.pt'))
 
