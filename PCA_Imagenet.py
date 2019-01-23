@@ -99,7 +99,7 @@ pca_result_scaled = StandardScaler().fit_transform(pca_result)
 #print(pca_result.shape)
 #Based on https://distill.pub/2016/misread-tsne/, the perplexity value can significantly affect the output plot 
 
-tsne = TSNE(n_components=2, perplexity=50.0)
+tsne = TSNE(n_components=2, perplexity=30.0)
 tsne_result = tsne.fit_transform(pca_result)
 tsne_result_scaled = StandardScaler().fit_transform(tsne_result)
 visualize_scatter(tsne_result_scaled, label_ids)
