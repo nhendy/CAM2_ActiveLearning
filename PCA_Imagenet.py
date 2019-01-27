@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import load_digits
+#from sklearn.datasets import load_digits
 
 #Input the Data folder here
 BASE_DATA_FOLDER = "../home/data/ilsvrc/ILSVRC/ILSVRC2012_Classification"#"../cat-and-dog"#../hymenoptera_data"#"../Medical_data"
@@ -18,6 +18,7 @@ TRAin_DATA_FOLDER = os.path.join(BASE_DATA_FOLDER, "train")
 
 #Input the Highlight folder here
 BASE_HIGHLIGHT_FOLDER = "../home/nobelletay/al/org_centers"
+
 
 #Plot
 def visualize_scatter(data_2d, label_ids, figsize=(10,10)):
@@ -53,12 +54,13 @@ def visualize_scatter(data_2d, label_ids, figsize=(10,10)):
 images = []
 labels = []
 
+
+
 class_counter=0
 class_limit=200
 image_counter=0
-image_limited=200
-
-#Read Images from Imagenet
+image_limit=200
+#First resize the image to 200*200 with grey scale
 for class_folder_name in os.listdir(TRAin_DATA_FOLDER):
     print(class_folder_name)
     image_counter=0
@@ -90,6 +92,7 @@ for image_path in glob(os.path.join(BASE_HIGHLIGHT_FOLDER, "*.jpg")):
         if(image_counter > image_limited):
             break
 
+
 images = np.array(images)
 labels = np.array(labels)
 
@@ -111,6 +114,7 @@ pca = PCA(n_components=2)
 pca_result = pca.fit_transform(images_scaled)
 pca_result_scaled = StandardScaler().fit_transform(pca_result)
 #visualize_scatter(pca_result_scaled, label_ids)
+
 
 #Based on https://distill.pub/2016/misread-tsne/, the perplexity value can significantly affect the output plot 
 
