@@ -12,8 +12,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.datasets import load_digits
 
 #Input the Data folder here
-BASE_DATA_FOLDER = "../home/data/ilsvrc/ILSVRC"#"../cat-and-dog"#../hymenoptera_data"#"../Medical_data"
-TRAin_DATA_FOLDER = os.path.join(BASE_DATA_FOLDER, "ILSVRC2012_Classification")
+BASE_DATA_FOLDER = "../home/data/ilsvrc/ILSVRC/ILSVRC2012_Classification"#"../cat-and-dog"#../hymenoptera_data"#"../Medical_data"
+TRAin_DATA_FOLDER = os.path.join(BASE_DATA_FOLDER, "train")
+
+
+#Input the Highlight folder here
+BASE_HIGHLIGHT_FOLDER = "../home/nobelletay/al/org_centers"
 
 #Plot
 def visualize_scatter(data_2d, label_ids, figsize=(10,10)):
@@ -23,40 +27,69 @@ def visualize_scatter(data_2d, label_ids, figsize=(10,10)):
     nb_classes = len(np.unique(label_ids))
     
     for label_id in np.unique(label_ids):
-        if (id_to_label_dict[label_id] == "highlight"):
+        plt.scatter(data_2d[np.where(label_ids == label_id), 0],
+                    data_2d[np.where(label_ids == label_id), 1],
+                    marker='o',
+                    color=  'b',
+                    linewidth='1',
+                    alpha=0.8,
+                    label=id_to_label_dict[label_id])
+
+    for label_id in np.unique(label_ids):
+        if (id_to_label_dict[label_id] = "highlight"):
             plt.scatter(data_2d[np.where(label_ids == label_id), 0],
                         data_2d[np.where(label_ids == label_id), 1],
                         marker='o',
                         color= 'red',
-                        linewidth='1',
-                        alpha=0.5,
-                        label=id_to_label_dict[label_id])
-        else:
-            plt.scatter(data_2d[np.where(label_ids == label_id), 0],
-                        data_2d[np.where(label_ids == label_id), 1],
-                        marker='o',
-                        color=  plt.cm.Set1(label_id / float(nb_classes)),
-                        linewidth='1',
-                        alpha=0.5,
+                        linewidth='4',
+                        alpha=0.8,
                         label=id_to_label_dict[label_id])
 
-    plt.legend(loc='best')
-    plt.show() 
+
+    #plt.legend(loc='best')
+    #plt.show() 
+    plt.savefig("T-SNE_result.png")
 
 images = []
 labels = []
 
-#First resize the image to 200*200 with grey scale
+class_counter=0
+class_limit=200
+image_counter=0
+image_limited=200
+
+#Read Images from Imagenet
 for class_folder_name in os.listdir(TRAin_DATA_FOLDER):
+    print(class_folder_name)
+    image_counter=0
+    class_counter = class_counter + 1
+    if (class_counter > class_limit):
+        break
     class_folder_path = os.path.join(TRAin_DATA_FOLDER, class_folder_name)
-    for image_path in glob(os.path.join(class_folder_path, "*.jpg")):
+    for image_path in glob(os.path.join(class_folder_path, "*.JPEG")):
+        image_counter = image_counter + 1
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)
         image = cv2.resize(image, (100, 100))
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        #image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         image = image.flatten()
         images.append(image)
         labels.append(class_folder_name)
-        
+        if(image_counter > image_limited):
+            break
+#Read Images from Highlight folder
+image_counter=0
+for image_path in glob(os.path.join(BASE_HIGHLIGHT_FOLDER, "*.jpg")):
+        print(image_path)
+        image_counter = image_counter + 1
+        image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        image = cv2.resize(image, (100, 100))
+        #image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = image.flatten()
+        images.append(image)
+        labels.append("highlight")
+        if(image_counter > image_limited):
+            break
+
 images = np.array(images)
 labels = np.array(labels)
 
@@ -68,7 +101,6 @@ id_to_label_dict = {v: k for k, v in label_to_id_dict.items()}
 label_ids = np.array([label_to_id_dict[x] for x in labels])
 images_scaled = StandardScaler().fit_transform(images)
 
-#print(images_scaled.shape)
 #plt.imshow(np.reshape(images[35], (200,200)), cmap="gray")
 
 #visualize_scatter(images_scaled , label_ids)
@@ -78,15 +110,13 @@ images_scaled = StandardScaler().fit_transform(images)
 pca = PCA(n_components=2)
 pca_result = pca.fit_transform(images_scaled)
 pca_result_scaled = StandardScaler().fit_transform(pca_result)
-visualize_scatter(pca_result_scaled, label_ids)
-#print(pca.explained_variance_ratio_)
+#visualize_scatter(pca_result_scaled, label_ids)
 
-#print(pca_result.shape)
 #Based on https://distill.pub/2016/misread-tsne/, the perplexity value can significantly affect the output plot 
 
-#tsne = TSNE(n_components=2, perplexity=40.0)
-#tsne_result = tsne.fit_transform(pca_result)
-#tsne_result_scaled = StandardScaler().fit_transform(tsne_result)
-#visualize_scatter(tsne_result_scaled, label_ids)
+tsne = TSNE(n_components=2, perplexity=20.0)
+tsne_result = tsne.fit_transform(pca_result)
+tsne_result_scaled = StandardScaler().fit_transform(tsne_result)
+visualize_scatter(tsne_result_scaled, label_ids)
 
 
